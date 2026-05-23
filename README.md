@@ -87,7 +87,7 @@ paidsafe/
 |---|---|--------|
 | Saddiq | Nigeria | Crew Lead · Architecture · Backend Support |
 | Mohamed | Kenya | Frontend Lead |@M-khalifa8103
-| Remla | Ethiopia | Backend Lead |
+| Remla | Ethiopia | Backend Lead |@rehabib
 
 
 ## Running Locally
