@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { auth } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -8,15 +14,57 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setIsSignUp(searchParams.get("signup") === "true");
+    setError("");
   }, [searchParams]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("isLoggedIn", "true");
-    navigate("/dashboard");
+    setError("");
+
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (isSignUp) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        if (name) {
+          await updateProfile(userCredential.user, { displayName: name });
+        }
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+      localStorage.setItem("isLoggedIn", "true");
+      navigate("/dashboard");
+    } catch (err: any) {
+      console.error(err);
+      let message = "An error occurred. Please try again.";
+      if (err.code === "auth/email-already-in-use") {
+        message = "This email is already in use.";
+      } else if (err.code === "auth/invalid-email") {
+        message = "Invalid email address format.";
+      } else if (err.code === "auth/weak-password") {
+        message = "Password should be at least 6 characters.";
+      } else if (
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/wrong-password"
+      ) {
+        message = "Incorrect email or password.";
+      } else if (err.message) {
+        message = err.message;
+      }
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,6 +86,11 @@ const LoginPage = () => {
         </div>
 
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg p-3 mb-4">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             {isSignUp && (
               <div>
@@ -48,8 +101,9 @@ const LoginPage = () => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  disabled={loading}
                   placeholder="John Doe"
-                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
             )}
@@ -62,8 +116,9 @@ const LoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
                 placeholder="you@example.com"
-                className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition disabled:opacity-50"
               />
             </div>
 
@@ -85,16 +140,18 @@ const LoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
                 placeholder="••••••••"
-                className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition disabled:opacity-50"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg text-sm transition-colors mt-2"
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg text-sm transition-colors mt-2 disabled:bg-indigo-600/50 disabled:cursor-not-allowed"
             >
-              {isSignUp ? "Create account" : "Sign in"}
+              {loading ? "Please wait..." : isSignUp ? "Create account" : "Sign in"}
             </button>
           </form>
 
