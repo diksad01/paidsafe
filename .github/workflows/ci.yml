@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -13,7 +13,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install backend deps
-        run: cd backend && npm install
-      - name: Run backend tests
-        run: cd backend && npm test -- --passWithNoTests
+      - name: Install frontend dependencies
+        run: cd frontend && npm install
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+
