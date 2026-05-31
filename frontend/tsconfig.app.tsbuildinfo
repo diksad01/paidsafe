@@ -1,0 +1,1 @@
+{"root":["./src/firebase.ts","./src/main.tsx","./src/vite-env.d.ts","./src/assets/app/app.tsx","./src/components/navbar .tsx","./src/layouts/applayout.tsx","./src/pages/contractpage.tsx","./src/pages/dashboard.tsx","./src/pages/homepage.tsx","./src/pages/loginpage.tsx","./src/pages/newcontractpage.tsx","./src/pages/index.ts"],"version":"5.8.3"}

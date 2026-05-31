@@ -39,6 +39,7 @@ const NavBar = () => {
 
           <Link
             to="/login"
+            onClick={() => localStorage.removeItem("isLoggedIn")}
             className="text-sm text-slate-400 hover:text-white transition-colors"
           >
             Sign out

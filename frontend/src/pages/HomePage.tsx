@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
   return (
     <div className="min-h-screen bg-white">
       <header className="bg-slate-900">
@@ -13,13 +15,13 @@ const HomePage = () => {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              to="/login"
+              to={isLoggedIn ? "/dashboard" : "/login"}
               className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
             >
-              Sign in
+              {isLoggedIn ? "Dashboard" : "Sign in"}
             </Link>
             <Link
-              to="/dashboard"
+              to={isLoggedIn ? "/dashboard" : "/login?signup=true"}
               className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               Get started
@@ -47,13 +49,13 @@ const HomePage = () => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/contract/new"
+              to={isLoggedIn ? "/contract/new" : "/login"}
               className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 py-4 rounded-xl text-base transition-colors"
             >
               Create a contract
             </Link>
             <Link
-              to="/dashboard"
+              to={isLoggedIn ? "/dashboard" : "/login"}
               className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold px-8 py-4 rounded-xl text-base transition-colors"
             >
               View dashboard
