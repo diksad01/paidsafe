@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 18
       - name: Install frontend deps
-        run: cd frontend/frontend && npm install
+        run: cd frontend && npm install
       - name: Build frontend
         run: cd frontend/frontend && npm run build
       - name: Install backend deps
