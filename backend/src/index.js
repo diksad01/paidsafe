@@ -11,7 +11,6 @@ import aiRoutes from "./routes/ai.js";
 
 import errorHandler from "./middleware/errorHandler.js";
 const app = express();
-app.use(errorHandler);
 
 app.use(cors());
 app.use(express.json());
@@ -25,6 +24,8 @@ status: "ok",
 service: "PaidSafe API",
 });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
