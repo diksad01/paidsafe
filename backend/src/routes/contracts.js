@@ -66,27 +66,77 @@ const router = express.Router();
 });
 
 
-/**
 
-* GET /api/contracts/:id
-  */
-  router.get("/:id", (req, res) => {
-  res.json({
-  id: req.params.id,
-  title: "Mock Contract",
-  status: "ACTIVE",
-  milestones: []
-  });
-  });
+ router.get("/user/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
 
-/**
+    const snapshot = await db
+      .collection("contracts")
+      .where("freelancerId", "==", uid)
+      .get();
 
-* GET /api/contracts/user/:uid
-  */
-  router.get("/user/:uid", (req, res) => {
-  res.json({
-  contracts: []
-  });
-  });
+    const contracts = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.json({
+      contracts
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch contracts"
+    });
+  }
+});
+
+
+/*GET /api/contracts/:id*/
+  
+  router.get("/:id", async (req, res) => {
+  try {
+    const contractId = req.params.id;
+
+    const contractDoc = await db
+      .collection("contracts")
+      .doc(contractId)
+      .get();
+
+    if (!contractDoc.exists) {
+      return res.status(404).json({
+        error: "Contract not found"
+      });
+    }
+
+    const milestonesSnapshot = await db
+      .collection("contracts")
+      .doc(contractId)
+      .collection("milestones")
+      .get();
+
+    const milestones = milestonesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.json({
+      id: contractDoc.id,
+      ...contractDoc.data(),
+      milestones
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to fetch contract"
+    });
+  }
+});
+  
 
 export default router;
