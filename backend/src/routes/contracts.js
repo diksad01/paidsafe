@@ -1,27 +1,71 @@
 import express from "express";
 import { db } from "../services/firebase.js";
 import authMiddleware from "../middleware/auth.js";
+import axios from "axios";
+
 const router = express.Router();
 
-/**
 
-* POST /api/contracts/draft
-* Mock AI contract generation
-  */
-  router.post("/draft", (req, res) => {
-  res.json({
-  milestones: [
-  { title: "Design", amount: 50000 },
-  { title: "Development", amount: 100000 }
-  ],
-  totalAmount: 150000,
-  currency: "NGN"
-  });
-  });
 
-/**
+router.post("/draft", async (req, res) => {
+  try {
+    const { description } = req.body;
 
-* POST /api/contracts/create
+    if (!description) {
+      return res.status(400).json({
+        error: "Description is required"
+      });
+    }
+
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "deepseek/deepseek-r1",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a contract generator for freelancers. Always return ONLY valid JSON with this structure: { milestones: [{ title: string, amount: number }], totalAmount: number, currency: string }. Do not include any explanation text."
+          },
+          {
+            role: "user",
+            content: description
+          }
+        ],
+        temperature: 0.7
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const aiText = response.data.choices[0].message.content;
+
+    let parsed;
+
+    try {
+      parsed = JSON.parse(aiText);
+    } catch (err) {
+      return res.status(500).json({
+        error: "AI returned invalid JSON",
+        raw: aiText
+      });
+    }
+
+    res.json(parsed);
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Failed to generate contract with AI"
+    });
+  }
+});
+/* POST /api/contracts/create
   */
   router.post("/create", authMiddleware, async (req, res) => {
   try {

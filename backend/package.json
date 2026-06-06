@@ -14,10 +14,11 @@
   "license": "ISC",
   "dependencies": {
     "@sentry/node": "^10.53.1",
-    "axios": "^1.16.1",
+    "axios": "^1.17.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
     "firebase-admin": "^13.10.0",
     "resend": "^6.12.4"
   },
