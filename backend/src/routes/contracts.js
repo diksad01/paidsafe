@@ -11,9 +11,17 @@ router.post("/draft", async (req, res) => {
   try {
     const { description } = req.body;
 
-    if (!description) {
+    if (!description || !description.trim()) {
       return res.status(400).json({
-        error: "Description is required"
+        error: "Job description is required"
+      });
+    }
+
+    const trimmedDescription = description.trim();
+
+    if (trimmedDescription.length < 10) {
+      return res.status(400).json({
+        error: "Please provide a more detailed job description"
       });
     }
 
@@ -29,7 +37,7 @@ router.post("/draft", async (req, res) => {
           },
           {
             role: "user",
-            content: description
+            content: trimmedDescription
           }
         ],
         temperature: 0.7
