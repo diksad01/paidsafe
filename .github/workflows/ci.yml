@@ -5,18 +5,18 @@ on:
     branches: [main]
 
 jobs:
-  frontend:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Install frontend dependencies
+      - name: Install frontend deps
         run: cd frontend && npm install
-
       - name: Build frontend
         run: cd frontend && npm run build
-
-
+      - name: Install backend deps
+        run: cd backend && npm install
+      - name: Run backend tests
+        run: cd backend && npm test -- --passWithNoTests
