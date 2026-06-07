@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const HomePage = () => {
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const { user } = useAuthStore();
+  const isLoggedIn = !!user;
 
   return (
     <div className="min-h-screen bg-white">
