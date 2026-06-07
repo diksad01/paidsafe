@@ -39,13 +39,13 @@ export const SignupForm = () => {
   };
 
   const inputClass =
-    "w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 transition-all duration-150 focus:outline-none focus:border-brand-accent focus:shadow-[0_0_0_3px_rgba(108,99,255,0.15)] disabled:opacity-50 disabled:cursor-not-allowed";
+    "w-full bg-[#0F0F13] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 focus:border-[#6C63FF] transition duration-200 disabled:bg-[#1A1A24] disabled:text-[#8888AA] disabled:cursor-not-allowed";
 
   return (
     <div className="w-full space-y-6">
       <div className="space-y-1">
-        <h1 className="font-display text-2xl font-bold text-white">Create your account</h1>
-        <p className="text-slate-400 text-sm">Start getting paid safely today</p>
+        <h1 className="font-display text-2xl font-bold text-[#F0F0FF]">Create your account</h1>
+        <p className="text-[#8888AA] text-sm">Start getting paid safely today</p>
       </div>
 
       <AuthErrorBanner message={displayError} onDismiss={dismissError} />
@@ -53,14 +53,14 @@ export const SignupForm = () => {
       <GoogleButton onClick={handleGoogleSignup} loading={loading} label="Sign up with Google" />
 
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-slate-800" />
-        <span className="text-slate-600 text-xs">or sign up with email</span>
-        <div className="flex-1 h-px bg-slate-800" />
+        <div className="flex-1 h-px bg-[#2A2A3A]" />
+        <span className="text-[#8888AA]/60 text-xs">or sign up with email</span>
+        <div className="flex-1 h-px bg-[#2A2A3A]" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="signup-name" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+          <label htmlFor="signup-name" className="block text-xs font-semibold text-[#8888AA] uppercase tracking-wide">
             Full name
           </label>
           <input
@@ -77,7 +77,7 @@ export const SignupForm = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="signup-email" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+          <label htmlFor="signup-email" className="block text-xs font-semibold text-[#8888AA] uppercase tracking-wide">
             Email address
           </label>
           <input
@@ -94,7 +94,7 @@ export const SignupForm = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="signup-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+          <label htmlFor="signup-password" className="block text-xs font-semibold text-[#8888AA] uppercase tracking-wide">
             Password
           </label>
           <PasswordInput
@@ -108,7 +108,7 @@ export const SignupForm = () => {
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="signup-confirm" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+          <label htmlFor="signup-confirm" className="block text-xs font-semibold text-[#8888AA] uppercase tracking-wide">
             Confirm password
           </label>
           <PasswordInput
@@ -124,13 +124,7 @@ export const SignupForm = () => {
         <button
           type="submit"
           disabled={loading || !email || !password || !name || !confirmPassword}
-          className="w-full bg-brand-accent hover:bg-brand-accent-hover text-white font-semibold text-sm
-                     py-2.5 rounded-xl transition-all duration-150 shadow-btn hover:shadow-btn-hover
-                     hover:-translate-y-px active:translate-y-0
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent
-                     focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
-                     disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none
-                     flex items-center justify-center gap-2"
+          className="w-full bg-[#6C63FF] hover:bg-[#5A52E0] hover:shadow-[0_0_25px_rgba(108,99,255,0.5)] disabled:bg-[#6C63FF]/30 disabled:text-[#8888AA] disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
         >
           {loading ? (
             <>
@@ -142,17 +136,17 @@ export const SignupForm = () => {
           )}
         </button>
 
-        <p className="text-center text-slate-600 text-xs">
+        <p className="text-center text-[#8888AA]/50 text-xs">
           By creating an account you agree to our{" "}
-          <a href="#" className="text-slate-400 hover:text-slate-300 underline underline-offset-2">Terms</a>
+          <a href="#" className="text-[#8888AA] hover:text-[#F0F0FF] underline underline-offset-2">Terms</a>
           {" "}and{" "}
-          <a href="#" className="text-slate-400 hover:text-slate-300 underline underline-offset-2">Privacy Policy</a>.
+          <a href="#" className="text-[#8888AA] hover:text-[#F0F0FF] underline underline-offset-2">Privacy Policy</a>.
         </p>
       </form>
 
-      <p className="text-center text-slate-500 text-sm">
+      <p className="text-center text-[#8888AA] text-sm">
         Already have an account?{" "}
-        <Link to="/login" className="text-brand-accent hover:text-indigo-300 font-medium transition-colors">
+        <Link to="/login" className="text-[#6C63FF] hover:text-[#5A52E0] font-medium transition-colors">
           Sign in
         </Link>
       </p>

@@ -23,28 +23,33 @@ const NavBar = () => {
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <nav className="bg-slate-900 border-b border-slate-800">
+    <nav className="bg-[#0F0F13]/80 backdrop-blur-md border-b border-[#2A2A3A] sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">PS</span>
+            <div className="w-8 h-8 bg-gradient-to-tr from-[#6C63FF] to-[#4FFFB0] rounded-lg flex items-center justify-center">
+              <span className="text-white font-black text-sm">PS</span>
             </div>
-            <span className="text-white font-semibold text-lg tracking-tight">PaidSafe</span>
+            <span className="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#6C63FF] to-[#4FFFB0]">
+              PaidSafe
+            </span>
           </Link>
 
-          <div className="hidden sm:flex items-center gap-1">
+          <div className="hidden sm:flex items-center gap-1 h-full">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 h-full flex items-center text-sm font-medium transition-all duration-200 relative ${
                   pathname === link.to
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    ? "text-[#F0F0FF]"
+                    : "text-[#8888AA] hover:text-[#F0F0FF]"
                 }`}
               >
                 {link.label}
+                {pathname === link.to && (
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-gradient-to-r from-[#6C63FF] to-[#4FFFB0] shadow-[0_0_10px_rgba(108,99,255,0.8)]" />
+                )}
               </Link>
             ))}
           </div>
@@ -52,32 +57,32 @@ const NavBar = () => {
           <div className="flex items-center gap-3">
             {user && (
               <div className="hidden sm:flex items-center gap-2">
-                <div className="w-7 h-7 bg-brand-accent-light rounded-lg flex items-center justify-center">
-                  <span className="text-brand-accent text-xs font-bold">{initials}</span>
+                <div className="w-7 h-7 bg-[#6C63FF]/20 border border-[#6C63FF]/30 rounded-lg flex items-center justify-center">
+                  <span className="text-[#6C63FF] text-xs font-bold">{initials}</span>
                 </div>
-                <span className="text-slate-400 text-xs max-w-[120px] truncate">
+                <span className="text-[#8888AA] text-xs max-w-[120px] truncate">
                   {user.displayName ?? user.email}
                 </span>
               </div>
             )}
             <button
               onClick={handleLogout}
-              className="text-sm text-slate-400 hover:text-white transition-colors"
+              className="text-sm text-[#8888AA] hover:text-[#F0F0FF] transition-colors cursor-pointer"
             >
               Sign out
             </button>
           </div>
         </div>
 
-        <div className="sm:hidden flex gap-1 pb-3">
+        <div className="sm:hidden flex gap-2 pb-3 justify-center">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors relative ${
                 pathname === link.to
-                  ? "bg-slate-800 text-white"
-                  : "text-slate-400 hover:text-white"
+                  ? "text-[#F0F0FF] bg-[#1A1A24] border border-[#2A2A3A]"
+                  : "text-[#8888AA] hover:text-[#F0F0FF]"
               }`}
             >
               {link.label}

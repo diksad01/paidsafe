@@ -7,7 +7,6 @@ import type { CreateContractInput } from "../types/contract";
 
 type MilestoneField = "title" | "description" | "amount";
 
-// Explicit inline interface to type our dynamic array parameter wrappers safely
 interface LocalMilestone {
   title: string;
   description: string;
@@ -42,7 +41,9 @@ const NewContractPage = () => {
   };
 
   const removeMilestone = (index: number) => {
-    setMilestones((prev: LocalMilestone[]) => prev.filter((_, i: number) => i !== index));
+    setMilestones((prev: LocalMilestone[]) =>
+      prev.filter((_, i: number) => i !== index)
+    );
   };
 
   const updateMilestone = (
@@ -53,7 +54,10 @@ const NewContractPage = () => {
     setMilestones((prev: LocalMilestone[]) =>
       prev.map((m: LocalMilestone, i: number) =>
         i === index
-          ? { ...m, [field]: field === "amount" ? parseFloat(value) || 0 : value }
+          ? {
+              ...m,
+              [field]: field === "amount" ? parseFloat(value) || 0 : value,
+            }
           : m
       )
     );
@@ -77,42 +81,43 @@ const NewContractPage = () => {
     await submitContract(input);
   };
 
-  // Fixed reduce implicitly typed variables explicitly
-  const totalAmount = milestones.reduce((sum: number, m: LocalMilestone) => sum + (m.amount || 0), 0);
+  const totalAmount = milestones.reduce(
+    (sum: number, m: LocalMilestone) => sum + (m.amount || 0),
+    0
+  );
 
   const inputClass =
-    "w-full bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed";
+    "w-full bg-[#0F0F13] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 focus:border-[#6C63FF] transition duration-200 disabled:bg-[#1A1A24] disabled:text-[#8888AA] disabled:cursor-not-allowed";
 
-  // Fixed array iteration verification methods safely typed
   const isFormValid =
     title.trim().length > 0 &&
     clientEmail.trim().length > 0 &&
     milestones.length > 0 &&
-    milestones.every((m: LocalMilestone) => m.title.trim().length > 0 && m.amount > 0);
+    milestones.every(
+      (m: LocalMilestone) => m.title.trim().length > 0 && m.amount > 0
+    );
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+    <div className="max-w-2xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#F0F0FF]">
           New Contract
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <p className="text-[#8888AA] text-sm mt-1">
           Define terms, milestones, and payment details
         </p>
       </div>
 
       <form onSubmit={handleFormSubmit} className="space-y-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-5">
-          <h2 className="text-slate-900 font-semibold text-base">
+        <div className="bg-[#1A1A24] border border-[#2A2A3A] rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
+          <h2 className="text-[#F0F0FF] font-semibold text-base">
             Contract details
           </h2>
 
-          {saveError && (
-            <ErrorBanner message={saveError} />
-          )}
+          {saveError && <ErrorBanner message={saveError} />}
 
           <div>
-            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wide mb-1.5">
+            <label className="block text-[#8888AA] text-xs font-semibold uppercase tracking-wide mb-1.5">
               Contract title
             </label>
             <input
@@ -127,7 +132,7 @@ const NewContractPage = () => {
           </div>
 
           <div>
-            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wide mb-1.5">
+            <label className="block text-[#8888AA] text-xs font-semibold uppercase tracking-wide mb-1.5">
               Client email
             </label>
             <input
@@ -142,14 +147,14 @@ const NewContractPage = () => {
           </div>
 
           <div>
-            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wide mb-1.5">
+            <label className="block text-[#8888AA] text-xs font-semibold uppercase tracking-wide mb-1.5">
               Total budget
-              <span className="text-slate-400 text-xs font-normal normal-case ml-1">
+              <span className="text-[#8888AA]/60 text-xs font-normal normal-case ml-1">
                 (optional — helps AI suggest amounts)
               </span>
             </label>
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 text-sm">$</span>
+            <div className="flex items-center gap-2 relative">
+              <span className="text-[#8888AA] text-sm absolute left-4">₦</span>
               <input
                 type="number"
                 value={totalBudget}
@@ -157,13 +162,13 @@ const NewContractPage = () => {
                 placeholder="0.00"
                 min="0"
                 disabled={saveLoading}
-                className={inputClass}
+                className={`${inputClass} pl-8`}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-700 text-xs font-semibold uppercase tracking-wide mb-1.5">
+            <label className="block text-[#8888AA] text-xs font-semibold uppercase tracking-wide mb-1.5">
               Scope of work
             </label>
             <textarea
@@ -177,9 +182,9 @@ const NewContractPage = () => {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="bg-[#1A1A24] border border-[#2A2A3A] rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
           <div className="flex items-center justify-between">
-            <h2 className="text-slate-900 font-semibold text-base">
+            <h2 className="text-[#F0F0FF] font-semibold text-base">
               Milestones
             </h2>
             <div className="flex items-center gap-3">
@@ -187,15 +192,13 @@ const NewContractPage = () => {
                 type="button"
                 onClick={handleSuggest}
                 disabled={
-                  aiLoading ||
-                  saveLoading ||
-                  description.trim().length === 0
+                  aiLoading || saveLoading || description.trim().length === 0
                 }
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-500 disabled:text-slate-300 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold bg-gradient-to-r from-[#6C63FF] to-[#4F46E5] text-white hover:shadow-[0_0_20px_rgba(108,99,255,0.4)] disabled:from-[#6C63FF]/30 disabled:to-[#4F46E5]/30 disabled:text-[#8888AA] disabled:cursor-not-allowed transition-all duration-200 px-3 py-1.5 rounded-xl cursor-pointer"
               >
                 {aiLoading ? (
                   <>
-                    <div className="w-3 h-3 border border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
+                    <div className="w-3 h-3 border border-indigo-300 border-t-white rounded-full animate-spin" />
                     Generating...
                   </>
                 ) : (
@@ -221,7 +224,7 @@ const NewContractPage = () => {
                 type="button"
                 onClick={addMilestone}
                 disabled={saveLoading}
-                className="text-indigo-600 hover:text-indigo-500 disabled:text-slate-300 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                className="text-[#6C63FF] hover:text-[#5A52E0] disabled:text-[#8888AA]/50 text-sm font-semibold transition-colors cursor-pointer"
               >
                 + Add
               </button>
@@ -234,7 +237,10 @@ const NewContractPage = () => {
 
           {aiLoading && (
             <div className="py-8">
-              <LoadingSpinner size="sm" label="Generating milestone suggestions..." />
+              <LoadingSpinner
+                size="sm"
+                label="Generating milestone suggestions..."
+              />
             </div>
           )}
 
@@ -243,10 +249,10 @@ const NewContractPage = () => {
               {milestones.map((milestone: LocalMilestone, index: number) => (
                 <div
                   key={index}
-                  className="flex gap-3 items-start bg-slate-50 rounded-xl p-4"
+                  className="flex gap-3 items-start bg-[#0F0F13] border border-[#2A2A3A] border-l-4 border-l-[#6C63FF] rounded-xl p-4 transition-all duration-200"
                 >
-                  <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-indigo-600 text-xs font-bold">
+                  <div className="w-6 h-6 bg-[#6C63FF]/20 border border-[#6C63FF]/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[#6C63FF] text-xs font-bold font-display">
                       {index + 1}
                     </span>
                   </div>
@@ -260,7 +266,7 @@ const NewContractPage = () => {
                       }
                       placeholder="Milestone title"
                       disabled={saveLoading}
-                      className="w-full bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition disabled:bg-slate-50 disabled:cursor-not-allowed"
+                      className="w-full bg-[#1A1A24] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <input
                       type="text"
@@ -270,10 +276,12 @@ const NewContractPage = () => {
                       }
                       placeholder="Description (optional)"
                       disabled={saveLoading}
-                      className="w-full bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition disabled:bg-slate-50 disabled:cursor-not-allowed"
+                      className="w-full bg-[#1A1A24] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     />
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400 text-sm">$</span>
+                    <div className="flex items-center gap-2 relative">
+                      <span className="text-[#8888AA] text-sm absolute left-3">
+                        ₦
+                      </span>
                       <input
                         type="number"
                         value={milestone.amount || ""}
@@ -283,7 +291,7 @@ const NewContractPage = () => {
                         placeholder="0.00"
                         min="0"
                         disabled={saveLoading}
-                        className="w-full bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition disabled:bg-slate-50 disabled:cursor-not-allowed"
+                        className="w-full bg-[#1A1A24] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -293,7 +301,7 @@ const NewContractPage = () => {
                       type="button"
                       onClick={() => removeMilestone(index)}
                       disabled={saveLoading}
-                      className="text-slate-300 hover:text-red-400 disabled:cursor-not-allowed transition-colors mt-0.5 text-lg leading-none"
+                      className="text-[#8888AA] hover:text-[#FF4D4D] disabled:cursor-not-allowed transition-colors mt-0.5 text-lg leading-none cursor-pointer"
                     >
                       ×
                     </button>
@@ -304,22 +312,22 @@ const NewContractPage = () => {
           )}
 
           {totalAmount > 0 && (
-            <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-              <span className="text-slate-600 text-sm font-medium">
+            <div className="flex items-center justify-between pt-3 border-t border-[#2A2A3A]">
+              <span className="text-[#8888AA] text-sm font-medium">
                 Total contract value
               </span>
-              <span className="text-slate-900 text-lg font-bold tabular-nums">
-                ${totalAmount.toLocaleString()}
+              <span className="text-[#F0F0FF] text-lg font-bold tabular-nums">
+                ₦{totalAmount.toLocaleString()}
               </span>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3">
           <button
             type="submit"
             disabled={!isFormValid || saveLoading}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-[#6C63FF] hover:bg-[#5A52E0] hover:shadow-[0_0_25px_rgba(108,99,255,0.5)] disabled:bg-[#6C63FF]/30 disabled:text-[#8888AA] disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
           >
             {saveLoading ? (
               <>
@@ -334,7 +342,7 @@ const NewContractPage = () => {
             type="button"
             onClick={() => navigate("/dashboard")}
             disabled={saveLoading}
-            className="flex-1 bg-slate-100 hover:bg-slate-200 disabled:cursor-not-allowed text-slate-700 font-semibold py-3 rounded-xl text-sm transition-colors"
+            className="w-full bg-[#1A1A24] hover:bg-[#2A2A3A] border border-[#2A2A3A] text-[#8888AA] hover:text-[#F0F0FF] disabled:opacity-50 disabled:cursor-not-allowed font-semibold py-3 rounded-xl text-sm transition-all duration-200 cursor-pointer"
           >
             Cancel
           </button>

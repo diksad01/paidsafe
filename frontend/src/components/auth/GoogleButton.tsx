@@ -13,14 +13,13 @@ export const GoogleButton = ({
     type="button"
     onClick={onClick}
     disabled={loading}
-    className="w-full flex items-center justify-center gap-3 bg-white border border-slate-700
-               hover:bg-slate-50 text-slate-800 font-medium text-sm px-5 py-2.5 rounded-xl
-               transition-all duration-150 focus-visible:outline-none focus-visible:ring-2
-               focus-visible:ring-brand-accent focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
-               disabled:opacity-50 disabled:cursor-not-allowed"
+    className="w-full flex items-center justify-center gap-3 bg-[#1A1A24] border border-[#2A2A3A]
+               hover:bg-[#2A2A3A] text-[#F0F0FF] font-semibold text-sm px-5 py-2.5 rounded-xl
+               transition-all duration-200 hover:shadow-[0_0_15px_rgba(108,99,255,0.15)]
+               disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
   >
     {loading ? (
-      <div className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+      <div className="w-5 h-5 border-2 border-[#8888AA]/30 border-t-[#F0F0FF] rounded-full animate-spin" />
     ) : (
       <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

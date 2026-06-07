@@ -29,10 +29,7 @@ export const PasswordInput = ({
         placeholder={placeholder}
         autoComplete={autoComplete}
         disabled={disabled}
-        className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 pr-11
-                   text-sm text-white placeholder:text-slate-500 transition-all duration-150
-                   focus:outline-none focus:border-brand-accent focus:shadow-[0_0_0_3px_rgba(108,99,255,0.15)]
-                   disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-[#0F0F13] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-xl px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 focus:border-[#6C63FF] transition duration-200 disabled:bg-[#1A1A24] disabled:text-[#8888AA] disabled:cursor-not-allowed"
       />
       <button
         type="button"
