@@ -27,13 +27,13 @@ export const LoginForm = () => {
   };
 
   const inputClass =
-    "w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 transition-all duration-150 focus:outline-none focus:border-brand-accent focus:shadow-[0_0_0_3px_rgba(108,99,255,0.15)] disabled:opacity-50 disabled:cursor-not-allowed";
+    "w-full bg-[#0F0F13] border border-[#2A2A3A] text-[#F0F0FF] placeholder-[#8888AA] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C63FF]/30 focus:border-[#6C63FF] transition duration-200 disabled:bg-[#1A1A24] disabled:text-[#8888AA] disabled:cursor-not-allowed";
 
   return (
     <div className="w-full space-y-6">
       <div className="space-y-1">
-        <h1 className="font-display text-2xl font-bold text-white">Welcome back</h1>
-        <p className="text-slate-400 text-sm">Sign in to your PaidSafe account</p>
+        <h1 className="font-display text-2xl font-bold text-[#F0F0FF]">Welcome back</h1>
+        <p className="text-[#8888AA] text-sm">Sign in to your PaidSafe account</p>
       </div>
 
       <AuthErrorBanner message={error} onDismiss={clearError} />
@@ -41,14 +41,14 @@ export const LoginForm = () => {
       <GoogleButton onClick={handleGoogleLogin} loading={loading} />
 
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-slate-800" />
-        <span className="text-slate-600 text-xs">or continue with email</span>
-        <div className="flex-1 h-px bg-slate-800" />
+        <div className="flex-1 h-px bg-[#2A2A3A]" />
+        <span className="text-[#8888AA]/60 text-xs">or continue with email</span>
+        <div className="flex-1 h-px bg-[#2A2A3A]" />
       </div>
 
       <form onSubmit={handleEmailLogin} className="space-y-4">
         <div className="space-y-1.5">
-          <label htmlFor="login-email" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+          <label htmlFor="login-email" className="block text-xs font-semibold text-[#8888AA] uppercase tracking-wide">
             Email address
           </label>
           <input
@@ -66,10 +66,10 @@ export const LoginForm = () => {
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="login-password" className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+            <label htmlFor="login-password" className="block text-xs font-semibold text-[#8888AA] uppercase tracking-wide">
               Password
             </label>
-            <a href="#" className="text-xs text-brand-accent hover:text-indigo-300 transition-colors">
+            <a href="#" className="text-xs text-[#6C63FF] hover:text-[#5A52E0] transition-colors">
               Forgot password?
             </a>
           </div>
@@ -85,13 +85,7 @@ export const LoginForm = () => {
         <button
           type="submit"
           disabled={loading || !email || !password}
-          className="w-full bg-brand-accent hover:bg-brand-accent-hover text-white font-semibold text-sm
-                     py-2.5 rounded-xl transition-all duration-150 shadow-btn hover:shadow-btn-hover
-                     hover:-translate-y-px active:translate-y-0
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent
-                     focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900
-                     disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none
-                     flex items-center justify-center gap-2"
+          className="w-full bg-[#6C63FF] hover:bg-[#5A52E0] hover:shadow-[0_0_25px_rgba(108,99,255,0.5)] disabled:bg-[#6C63FF]/30 disabled:text-[#8888AA] disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
         >
           {loading ? (
             <>
@@ -104,9 +98,9 @@ export const LoginForm = () => {
         </button>
       </form>
 
-      <p className="text-center text-slate-500 text-sm">
+      <p className="text-center text-[#8888AA] text-sm">
         Don't have an account?{" "}
-        <Link to="/signup" className="text-brand-accent hover:text-indigo-300 font-medium transition-colors">
+        <Link to="/signup" className="text-[#6C63FF] hover:text-[#5A52E0] font-medium transition-colors">
           Create one free
         </Link>
       </p>

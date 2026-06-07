@@ -10,9 +10,9 @@ interface StatCardProps {
 }
 
 const StatCard = ({ label, value }: StatCardProps) => (
-  <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5">
-    <p className="text-slate-500 text-xs font-medium mb-1">{label}</p>
-    <p className="text-slate-900 text-xl sm:text-2xl font-bold tabular-nums">
+  <div className="bg-[#1A1A24] border border-[#2A2A3A] border-l-4 border-l-[#6C63FF] rounded-2xl p-4 sm:p-5 hover:shadow-glow-indigo hover:border-[#6C63FF]/40 transition-all duration-200">
+    <p className="text-[#8888AA] text-xs font-medium mb-1">{label}</p>
+    <p className="text-[#F0F0FF] text-xl sm:text-2xl font-bold tabular-nums">
       {value}
     </p>
   </div>
@@ -26,11 +26,11 @@ export const ContractStats = ({ stats }: ContractStatsProps) => (
     />
     <StatCard
       label="In Escrow"
-      value={`$${stats.inEscrow.toLocaleString()}`}
+      value={`₦${stats.inEscrow.toLocaleString()}`}
     />
     <StatCard
       label="Released"
-      value={`$${stats.released.toLocaleString()}`}
+      value={`₦${stats.released.toLocaleString()}`}
     />
     <StatCard
       label="Pending Approval"
