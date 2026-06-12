@@ -6,9 +6,7 @@ const router = express.Router();
 
 
 
-/**
-
-* PATCH /api/milestones/:id/complete
+/*PATCH /api/milestones/:id/complete
   */
   router.patch("/:id/complete", authMiddleware, async (req, res) => {
   try {
@@ -39,9 +37,7 @@ const router = express.Router();
   }
 });
 
-/**
-
-* PATCH /api/milestones/:id/approve
+/*PATCH /api/milestones/:id/approve
   */
   router.patch("/:id/approve", async (req, res) => {
   try {
@@ -70,10 +66,10 @@ const router = express.Router();
     });
   }
 });
-/**
 
-* PATCH /api/milestones/:id/dispute
+/*PATCH /api/milestones/:id/dispute
   */
+ 
   router.patch("/:id/dispute", async (req, res) => {
   try {
     const milestoneId = req.params.id;

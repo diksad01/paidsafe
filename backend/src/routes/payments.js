@@ -1,9 +1,13 @@
+import "../config/env.js";
 import express from "express";
 import Flutterwave from "flutterwave-node-v3";
 import { db } from "../services/firebase.js";
 
 const router = express.Router();
 
+
+console.log("PUBLIC KEY:", process.env.FLUTTERWAVE_PUBLIC_KEY);
+console.log("SECRET KEY EXISTS:", !!process.env.FLUTTERWAVE_SECRET_KEY);
 const flw = new Flutterwave(
   process.env.FLUTTERWAVE_PUBLIC_KEY,
   process.env.FLUTTERWAVE_SECRET_KEY

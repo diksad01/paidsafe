@@ -1,3 +1,4 @@
+import "../config/env.js";
 import express from "express";
 import { db } from "../services/firebase.js";
 import authMiddleware from "../middleware/auth.js";
