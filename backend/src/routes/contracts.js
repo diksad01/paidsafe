@@ -29,7 +29,7 @@ router.post("/draft", async (req, res) => {
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model:"meta-llama/llama-3.3-8b-instruct:free",
+        model:"google/gemma-4-26b-a4b-it:free",
         messages: [
           {
             role: "system",
