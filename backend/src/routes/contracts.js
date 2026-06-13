@@ -6,8 +6,19 @@ import axios from "axios";
 
 const router = express.Router();
 
+/**
+ * AI MODEL FALLBACK LIST
+ * (first working model will be used)
+ */
+const MODELS = [
+  "google/gemma-4-26b-a4b-it:free",
+  "qwen/qwen3-32b:free"
+];
 
-
+/**
+ * POST /api/contracts/draft
+ * AI contract generation with fallback models
+ */
 router.post("/draft", async (req, res) => {
   try {
     const { description } = req.body;
@@ -26,69 +37,104 @@ router.post("/draft", async (req, res) => {
       });
     }
 
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        model:"google/gemma-4-26b-a4b-it:free",
-        messages: [
+    let response = null;
+
+    // Try models one by one
+    for (const model of MODELS) {
+      try {
+        response = await axios.post(
+          "https://openrouter.ai/api/v1/chat/completions",
           {
-            role: "system",
-            content:
-              "You are a contract generator for freelancers. Always return ONLY valid JSON with this structure: { milestones: [{ title: string, amount: number }], totalAmount: number, currency: string }. Do not include any explanation text."
+            model,
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a contract generator for freelancers. Always return ONLY valid JSON with this structure: { milestones: [{ title: string, amount: number }], totalAmount: number, currency: string }. Do not include any explanation text."
+              },
+              {
+                role: "user",
+                content: trimmedDescription
+              }
+            ],
+            temperature: 0.7
           },
           {
-            role: "user",
-            content: trimmedDescription
+            headers: {
+              Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "https://paidsafe.up.railway.app",
+              "X-Title": "PaidSafe"
+            }
           }
-        ],
-        temperature: 0.7
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
+        );
 
-    const aiText = response.data.choices[0].message.content;
+        console.log(`✅ OpenRouter success using model: ${model}`);
+        break;
+
+      } catch (err) {
+        const status = err.response?.status;
+
+        console.log(`❌ Model failed (${model}) ->`, status);
+
+        // Skip only retryable errors
+        if (status === 429 || status === 404 || status === 402) {
+          continue;
+        }
+
+        throw err;
+      }
+    }
+
+    if (!response) {
+      return res.status(503).json({
+        error: "All AI models are currently unavailable. Please try again later."
+      });
+    }
+
+    let aiText = response.data.choices?.[0]?.message?.content || "";
+
+    /**
+     * CLEAN JSON (handles ```json blocks)
+     */
+    const cleaned = aiText
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
     let parsed;
 
     try {
-      parsed = JSON.parse(aiText);
+      parsed = JSON.parse(cleaned);
     } catch (err) {
+      console.error("Invalid JSON from AI:", cleaned);
+
       return res.status(500).json({
         error: "AI returned invalid JSON",
         raw: aiText
       });
     }
 
-    res.json(parsed);
-
+    return res.json(parsed);
   } catch (error) {
-  console.error(
-    "OpenRouter Error:",
-    error.response?.status,
-    error.response?.data
-  );
+    console.error(
+      "OpenRouter Error:",
+      error.response?.status,
+      error.response?.data
+    );
 
-  res.status(500).json({
-    error: "Failed to generate contract with AI"
-  });
-}
-  
+    return res.status(500).json({
+      error: "Failed to generate contract with AI"
+    });
+  }
 });
-/* POST /api/contracts/create
-  */
-  router.post("/create", authMiddleware, async (req, res) => {
+
+/**
+ * POST /api/contracts/create
+ */
+router.post("/create", authMiddleware, async (req, res) => {
   try {
-    const {
-      title,
-      clientEmail,
-      milestones,
-      totalAmount
-    } = req.body;
+    const { title, clientEmail, milestones, totalAmount } = req.body;
 
     const contractRef = await db.collection("contracts").add({
       title,
@@ -110,22 +156,23 @@ router.post("/draft", async (req, res) => {
       }
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       contractId: contractRef.id
     });
 
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to create contract"
     });
   }
 });
 
-
-
- router.get("/user/:uid", async (req, res) => {
+/**
+ * GET /api/contracts/user/:uid
+ */
+router.get("/user/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
 
@@ -134,28 +181,25 @@ router.post("/draft", async (req, res) => {
       .where("freelancerId", "==", uid)
       .get();
 
-    const contracts = snapshot.docs.map(doc => ({
+    const contracts = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
     }));
 
-    res.json({
-      contracts
-    });
-
+    return res.json({ contracts });
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to fetch contracts"
     });
   }
 });
 
-
-/*GET /api/contracts/:id*/
-  
-  router.get("/:id", async (req, res) => {
+/**
+ * GET /api/contracts/:id
+ */
+router.get("/:id", async (req, res) => {
   try {
     const contractId = req.params.id;
 
@@ -176,12 +220,12 @@ router.post("/draft", async (req, res) => {
       .collection("milestones")
       .get();
 
-    const milestones = milestonesSnapshot.docs.map(doc => ({
+    const milestones = milestonesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
     }));
 
-    res.json({
+    return res.json({
       id: contractDoc.id,
       ...contractDoc.data(),
       milestones
@@ -190,11 +234,12 @@ router.post("/draft", async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to fetch contract"
     });
   }
+
 });
-  
+
 
 export default router;
