@@ -67,12 +67,17 @@ router.post("/draft", async (req, res) => {
     res.json(parsed);
 
   } catch (error) {
-    console.error(error);
+  console.error(
+    "OpenRouter Error:",
+    error.response?.status,
+    error.response?.data
+  );
 
-    res.status(500).json({
-      error: "Failed to generate contract with AI"
-    });
-  }
+  res.status(500).json({
+    error: "Failed to generate contract with AI"
+  });
+}
+  
 });
 /* POST /api/contracts/create
   */
