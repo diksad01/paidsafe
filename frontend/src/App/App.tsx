@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AuthProvider, ProtectedRoute, GuestRoute } from "../components/auth";
 import AppLayout from "../layouts/AppLayout";
 import {
@@ -33,6 +34,7 @@ const App = () => {
           </Route>
         </Routes>
       </AuthProvider>
+      <SpeedInsights />
     </BrowserRouter>
   );
 };
