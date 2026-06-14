@@ -85,14 +85,8 @@ router.post("/draft", async (req, res) => {
         throw err;
       }
     }
-
-    // if (!response) {
-    //   return res.status(503).json({
-    //     error: "All AI models are currently unavailable. Please try again later."
-    //   });
-    // }
-
-    if (!response) {
+    
+  if (!response) {
   console.log("Using emergency contract fallback");
 
   return res.json({
