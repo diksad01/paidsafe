@@ -2,8 +2,12 @@ import express from "express";
 import { db } from "../services/firebase.js";
 import authMiddleware from "../middleware/auth.js";
 import axios from "axios";
+import { sendEmail } from "../services/resendService.js";
 
 const router = express.Router();
+
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://paidsafe.vercel.app";
+
 
 
 
@@ -104,6 +108,20 @@ router.post("/draft", async (req, res) => {
       }
     }
 
+    const contractLink = `${FRONTEND_URL}/contract/${contractRef.id}/client`;
+
+    await sendEmail(
+      clientEmail,
+      "You have a new contract on PaidSafe",
+      `<p>Hi,</p>
+      <p>A freelancer has sent you a contract titled <strong>${title}</strong> on PaidSafe.</p>
+      <p>PaidSafe is a secure escrow platform that protects both parties — your payment is held safely until you approve the work delivered.</p>
+      <p>Review the contract and pay your first milestone here:</p>
+      <p><a href="${contractLink}" style="color:#6C63FF;font-weight:bold">${contractLink}</a></p>
+      <p>You do not need to create an account — just open the link.</p>
+      <p>— The PaidSafe Team</p>`
+    );
+
     res.status(201).json({
       contractId: contractRef.id
     });
@@ -116,6 +134,7 @@ router.post("/draft", async (req, res) => {
     });
   }
 });
+
 
 
 

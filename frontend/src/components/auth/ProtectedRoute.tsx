@@ -2,10 +2,10 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 
 const FullPageSpinner = () => (
-  <div className="min-h-screen bg-white flex items-center justify-center">
+  <div className="min-h-screen bg-[#0F0F13] flex items-center justify-center">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-10 h-10 border-2 border-slate-200 border-t-brand-accent rounded-full animate-spin" />
-      <p className="text-brand-text-secondary text-sm font-medium">Loading...</p>
+      <div className="w-10 h-10 border-2 border-[#2A2A3A] border-t-[#6C63FF] rounded-full animate-spin" />
+      <p className="text-[#8888AA] text-sm font-medium">Loading...</p>
     </div>
   </div>
 );

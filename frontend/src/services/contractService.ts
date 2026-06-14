@@ -41,7 +41,7 @@ const fetchMilestones = async (contractId: string): Promise<Milestone[]> => {
       title: data.title as string,
       description: (data.description as string) ?? "",
       amount: data.amount as number,
-      status: (data.status as MilestoneStatus) ?? "pending",
+      status: ((data.status as MilestoneStatus) ?? "PENDING"),
       order: (data.order as number) ?? 0,
     };
   });
