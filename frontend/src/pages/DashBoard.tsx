@@ -8,7 +8,6 @@ import { EmptyContracts } from "../features/contracts/components/EmptyContracts"
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { deleteContract } from "../services/contractService";
-import { auth } from "../lib/firebase";
 
 interface ContractItem {
   id: string;
@@ -37,9 +36,7 @@ const DashboardPage = () => {
     setDeleting(true);
     setDeleteError(null);
     try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error("Not authenticated");
-      await deleteContract(confirmDeleteId, token);
+      await deleteContract(confirmDeleteId);
       setConfirmDeleteId(null);
       refetch();
     } catch (err) {

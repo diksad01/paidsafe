@@ -5,6 +5,7 @@ import {
   getDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -192,24 +193,12 @@ export const computeDashboardStats = (
   };
 };
 
-const API_BASE =
-  import.meta.env.VITE_BACKEND_URL ?? "https://paidsafe.up.railway.app";
-
 export const deleteContract = async (
-  contractId: string,
-  idToken: string
+  contractId: string
 ): Promise<void> => {
-  const response = await fetch(`${API_BASE}/api/contracts/${contractId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${idToken}`,
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error ?? `Failed to delete contract (${response.status})`
-    );
-  }
+  const milestonesSnap = await getDocs(
+    collection(db, COLLECTION, contractId, MILESTONES_SUB)
+  );
+  await Promise.all(milestonesSnap.docs.map((d) => deleteDoc(d.ref)));
+  await deleteDoc(doc(db, COLLECTION, contractId));
 };

@@ -7,7 +7,6 @@ import { PageError } from "../components/ui/PageError";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { completeMilestone } from "../services/milestoneService";
 import { deleteContract } from "../services/contractService";
-import { auth } from "../lib/firebase";
 import type { Milestone } from "../types/contract";
 
 const ContractPage = () => {
@@ -27,9 +26,7 @@ const ContractPage = () => {
     setDeleting(true);
     setDeleteError(null);
     try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error("Not authenticated");
-      await deleteContract(id, token);
+      await deleteContract(id);
       navigate("/dashboard");
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : "Failed to delete contract.");
