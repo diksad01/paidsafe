@@ -21,8 +21,11 @@ const MODELS = [
  */
 router.post("/draft", async (req, res) => {
   try {
-    const { description } = req.body;
-
+    const description =
+  typeof req.body === "string"
+    ? req.body
+    : req.body?.description || req.body?.prompt;
+    
     if (!description || !description.trim()) {
       return res.status(400).json({
         error: "Job description is required"
@@ -85,7 +88,7 @@ router.post("/draft", async (req, res) => {
         throw err;
       }
     }
-    
+
   if (!response) {
   console.log("Using emergency contract fallback");
 
