@@ -69,13 +69,13 @@ router.post("/draft", async (req, res) => {
           }
         );
 
-        console.log(`✅ OpenRouter success using model: ${model}`);
+        console.log(`OpenRouter success using model: ${model}`);
         break;
 
       } catch (err) {
         const status = err.response?.status;
 
-        console.log(`❌ Model failed (${model}) ->`, status);
+        console.log(` Model failed (${model}) ->`, status);
 
         // Skip only retryable errors
         if (status === 429 || status === 404 || status === 402) {
@@ -86,11 +86,35 @@ router.post("/draft", async (req, res) => {
       }
     }
 
+    // if (!response) {
+    //   return res.status(503).json({
+    //     error: "All AI models are currently unavailable. Please try again later."
+    //   });
+    // }
+
     if (!response) {
-      return res.status(503).json({
-        error: "All AI models are currently unavailable. Please try again later."
-      });
-    }
+  console.log("Using emergency contract fallback");
+
+  return res.json({
+    milestones: [
+      {
+        title: "Planning & Requirements",
+        amount: 1000
+      },
+      {
+        title: "Development",
+        amount: 3000
+      },
+      {
+        title: "Testing & Deployment",
+        amount: 1000
+      }
+    ],
+    totalAmount: 5000,
+    currency: "USD",
+    generatedBy: "fallback"
+  });
+}
 
     let aiText = response.data.choices?.[0]?.message?.content || "";
 
