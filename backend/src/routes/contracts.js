@@ -11,8 +11,8 @@ const router = express.Router();
  * (first working model will be used)
  */
 const MODELS = [
-  "google/gemma-4-26b-a4b-it:free",
-  "qwen/qwen3-32b:free"
+  "openai/gpt-oss-20b:free",
+  "google/gemma-4-26b-a4b-it:free"
 ];
 
 /**
@@ -25,7 +25,7 @@ router.post("/draft", async (req, res) => {
   typeof req.body === "string"
     ? req.body
     : req.body?.description || req.body?.prompt;
-    
+
     if (!description || !description.trim()) {
       return res.status(400).json({
         error: "Job description is required"
