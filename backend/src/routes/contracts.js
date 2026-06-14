@@ -210,4 +210,36 @@ router.post("/draft", async (req, res) => {
 });
   
 
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const contractId = req.params.id;
+
+    const contractDoc = await db.collection("contracts").doc(contractId).get();
+
+    if (!contractDoc.exists) {
+      return res.status(404).json({ error: "Contract not found" });
+    }
+
+    if (contractDoc.data().freelancerId !== req.user.uid) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const milestonesSnapshot = await db
+      .collection("contracts")
+      .doc(contractId)
+      .collection("milestones")
+      .get();
+
+    const batch = db.batch();
+    milestonesSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    batch.delete(db.collection("contracts").doc(contractId));
+    await batch.commit();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to delete contract" });
+  }
+});
+
 export default router;
