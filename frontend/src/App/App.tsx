@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider, ProtectedRoute, GuestRoute } from "../components/auth";
 import AppLayout from "../layouts/AppLayout";
 import {
@@ -33,6 +34,7 @@ const App = () => {
           </Route>
         </Routes>
       </AuthProvider>
+      <Analytics />
     </BrowserRouter>
   );
 };
