@@ -64,6 +64,7 @@ export const subscribeToAuthChanges = (
 };
 
 export const parseAuthError = (error: AuthError): string => {
+  console.error("[auth] Firebase error:", error.code, error.message);
   const map: Record<string, string> = {
     "auth/email-already-in-use": "An account with this email already exists.",
     "auth/invalid-email": "Please enter a valid email address.",
@@ -71,15 +72,19 @@ export const parseAuthError = (error: AuthError): string => {
     "auth/user-not-found": "No account found with this email.",
     "auth/wrong-password": "Incorrect password. Please try again.",
     "auth/invalid-credential": "Incorrect email or password. Please try again.",
-    "auth/too-many-requests": "Too many attempts. Please wait and try again.",
+    "auth/too-many-requests": "Too many attempts. Please wait a few minutes.",
     "auth/user-disabled": "This account has been disabled.",
     "auth/popup-closed-by-user": "Sign-in popup was closed. Please try again.",
     "auth/cancelled-popup-request": "Sign-in was cancelled.",
-    "auth/popup-blocked": "Pop-up was blocked by your browser. Please allow pop-ups.",
+    "auth/popup-blocked": "Pop-up was blocked by your browser. Please allow pop-ups for this site.",
     "auth/network-request-failed": "Network error. Please check your connection.",
-    "auth/operation-not-allowed": "This sign-in method is not enabled.",
+    "auth/operation-not-allowed": "This sign-in method is not enabled. Please contact support.",
+    "auth/unauthorized-domain": "This domain is not authorised for sign-in. Please contact support.",
+    "auth/internal-error": "An internal error occurred. Please try again.",
+    "auth/missing-email": "Please enter your email address.",
+    "auth/missing-password": "Please enter your password.",
   };
-  return map[error.code] ?? "An unexpected error occurred. Please try again.";
+  return map[error.code] ?? `Sign-in failed (${error.code ?? "unknown"}). Please try again.`;
 };
 
 export type { User, AuthError };
