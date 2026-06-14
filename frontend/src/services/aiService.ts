@@ -5,7 +5,7 @@ import type {
 } from "../types/ai";
 
 const AI_ENDPOINT =
-  import.meta.env.VITE_AI_ENDPOINT ?? "https://api.paidsafe.io/v1/ai/milestones";
+  import.meta.env.VITE_AI_ENDPOINT ?? "https://paidsafe.up.railway.app/api/contracts/draft";
 
 class AIError extends Error {
   readonly code: AIServiceError["code"];
