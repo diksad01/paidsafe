@@ -41,7 +41,7 @@ const fetchMilestones = async (contractId: string): Promise<Milestone[]> => {
       title: data.title as string,
       description: (data.description as string) ?? "",
       amount: data.amount as number,
-      status: (data.status as MilestoneStatus) ?? "pending",
+      status: ((data.status as MilestoneStatus) ?? "PENDING"),
       order: (data.order as number) ?? 0,
     };
   });
@@ -190,4 +190,26 @@ export const computeDashboardStats = (
     pending,
     completed,
   };
+};
+
+const API_BASE =
+  import.meta.env.VITE_BACKEND_URL ?? "https://paidsafe.up.railway.app";
+
+export const deleteContract = async (
+  contractId: string,
+  idToken: string
+): Promise<void> => {
+  const response = await fetch(`${API_BASE}/api/contracts/${contractId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(
+      (body as { error?: string }).error ?? `Failed to delete contract (${response.status})`
+    );
+  }
 };

@@ -1,25 +1,24 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useContract } from "../features/contracts/hooks/useContract";
-import { MilestoneList } from "../features/contracts/components/MilestoneList";
 import { ContractStatusBadge } from "../features/contracts/components/ContractStatusBadge";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { PageError } from "../components/ui/PageError";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
-import { updateMilestoneStatus } from "../services/contractService";
+import { initiatePayment } from "../services/paymentService";
+import { approveMilestone, disputeMilestone } from "../services/milestoneService";
 import type { Milestone } from "../types/contract";
+
+const normalizeStatus = (s: string) => s.toLowerCase();
 
 const ClientViewPage = () => {
   const { id } = useParams<{ id: string }>();
   const { contract, status, error, refetch } = useContract(id);
 
-  const [payingMilestoneId, setPayingMilestoneId] = useState<string | null>(
-    null
-  );
-  const [payError, setPayError] = useState<string | null>(null);
-  const [paidMilestoneIds, setPaidMilestoneIds] = useState<Set<string>>(
-    new Set()
-  );
+  const [payingMilestoneId, setPayingMilestoneId] = useState<string | null>(null);
+  const [actingMilestoneId, setActingMilestoneId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   if (status === "loading" || status === "idle") {
     return (
@@ -60,39 +59,78 @@ const ClientViewPage = () => {
 
   const handlePay = async (milestone: Milestone) => {
     if (!id) return;
-
     setPayingMilestoneId(milestone.id);
-    setPayError(null);
-
+    setActionError(null);
+    setActionSuccess(null);
     try {
-      await updateMilestoneStatus(
-        id,
-        milestone.id,
-        "in_review"
-      );
-
-      setPaidMilestoneIds((prev) => new Set(prev).add(milestone.id));
-      refetch();
+      const result = await initiatePayment({
+        contractId: id,
+        milestoneId: milestone.id,
+        amount: milestone.amount,
+        email: contract.clientEmail,
+        name: "Client",
+        currency: "NGN",
+      });
+      window.location.href = result.paymentLink;
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Payment failed. Please try again.";
-      setPayError(message);
-    } finally {
+      setActionError(
+        err instanceof Error ? err.message : "Payment failed. Please try again."
+      );
       setPayingMilestoneId(null);
     }
   };
 
+  const handleApprove = async (milestone: Milestone) => {
+    if (!id) return;
+    setActingMilestoneId(milestone.id);
+    setActionError(null);
+    setActionSuccess(null);
+    try {
+      await approveMilestone(milestone.id, id);
+      setActionSuccess(`Payment for "${milestone.title}" has been released.`);
+      refetch();
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : "Approval failed. Please try again."
+      );
+    } finally {
+      setActingMilestoneId(null);
+    }
+  };
+
+  const handleDispute = async (milestone: Milestone) => {
+    if (!id) return;
+    setActingMilestoneId(milestone.id);
+    setActionError(null);
+    setActionSuccess(null);
+    try {
+      await disputeMilestone(milestone.id, id);
+      setActionSuccess(`Dispute raised for "${milestone.title}". Our team will review within 48 hours.`);
+      refetch();
+    } catch (err) {
+      setActionError(
+        err instanceof Error ? err.message : "Failed to raise dispute. Please try again."
+      );
+    } finally {
+      setActingMilestoneId(null);
+    }
+  };
+
   const payableMilestones = contract.milestones.filter(
-    (m) => m.status === "pending" && !paidMilestoneIds.has(m.id)
+    (m) => normalizeStatus(m.status) === "pending"
+  );
+
+  const awaitingApprovalMilestones = contract.milestones.filter(
+    (m) => normalizeStatus(m.status) === "awaiting_approval"
   );
 
   const releasedAmount = contract.milestones
-    .filter((m) => m.status === "released")
+    .filter((m) => ["released", "RELEASED"].includes(m.status))
     .reduce((sum, m) => sum + m.amount, 0);
 
   const inEscrow = contract.totalAmount - releasedAmount;
+
+  const sorted = [...contract.milestones].sort((a, b) => a.order - b.order);
 
   return (
     <div className="min-h-screen bg-[#0F0F13]">
@@ -157,31 +195,57 @@ const ClientViewPage = () => {
           </div>
         </div>
 
-        {payError && (
-          <ErrorBanner
-            message={payError}
-            onDismiss={() => setPayError(null)}
-          />
+        {actionError && (
+          <ErrorBanner message={actionError} onDismiss={() => setActionError(null)} />
+        )}
+
+        {actionSuccess && (
+          <div className="bg-[#4FFFB0]/10 border border-[#4FFFB0]/20 rounded-2xl p-4 flex items-start gap-3">
+            <span className="text-[#4FFFB0] text-lg leading-none mt-0.5">✓</span>
+            <p className="text-[#4FFFB0] text-sm font-medium">{actionSuccess}</p>
+          </div>
         )}
 
         <div className="bg-[#1A1A24] border border-[#2A2A3A] rounded-2xl overflow-hidden shadow-xl">
           <div className="px-5 py-4 border-b border-[#2A2A3A]">
-            <h2 className="text-[#F0F0FF] font-semibold text-base">
-              Milestones
-            </h2>
+            <h2 className="text-[#F0F0FF] font-semibold text-base">Milestones</h2>
           </div>
-          <MilestoneList milestones={contract.milestones} />
+          <div className="divide-y divide-[#2A2A3A]">
+            {sorted.map((milestone, index) => (
+              <div
+                key={milestone.id}
+                className="flex items-start gap-4 px-5 py-4 bg-[#1A1A24]"
+              >
+                <div className="w-7 h-7 bg-[#6C63FF]/20 border border-[#6C63FF]/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-[#6C63FF] text-xs font-bold">{index + 1}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#F0F0FF] text-sm font-medium">{milestone.title}</p>
+                  {milestone.description && (
+                    <p className="text-[#8888AA] text-xs mt-0.5 leading-relaxed">
+                      {milestone.description}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <ContractStatusBadge status={milestone.status} />
+                  <span className="text-[#F0F0FF] text-sm font-semibold tabular-nums">
+                    ₦{milestone.amount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {payableMilestones.length > 0 && (
           <div className="bg-[#1A1A24] border border-[#2A2A3A] rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
             <div>
               <h2 className="text-[#F0F0FF] font-semibold text-base mb-1">
-                Pay a milestone
+                Pay into escrow
               </h2>
               <p className="text-[#8888AA] text-xs leading-relaxed">
-                Funds are held in escrow and released to the contractor only
-                after you approve the delivered work.
+                Funds are held securely and released to the contractor only after you approve their work.
               </p>
             </div>
 
@@ -201,7 +265,6 @@ const ClientViewPage = () => {
                       </p>
                     )}
                   </div>
-
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <span className="text-[#F0F0FF] text-sm font-semibold tabular-nums">
                       ₦{milestone.amount.toLocaleString()}
@@ -215,10 +278,10 @@ const ClientViewPage = () => {
                       {payingMilestoneId === milestone.id ? (
                         <>
                           <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
-                          Processing...
+                          Redirecting...
                         </>
                       ) : (
-                        "Pay now"
+                        "Pay into escrow"
                       )}
                     </button>
                   </div>
@@ -227,22 +290,84 @@ const ClientViewPage = () => {
             </div>
 
             <p className="text-[#8888AA]/50 text-xs text-center pt-1">
-              🔒 Payments are secured by PaidSafe escrow. You stay in control
-              until work is approved.
+              🔒 Secured by PaidSafe escrow. You stay in control until work is approved.
             </p>
           </div>
         )}
 
+        {awaitingApprovalMilestones.length > 0 && (
+          <div className="bg-[#1A1A24] border border-amber-500/20 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
+            <div>
+              <h2 className="text-amber-400 font-semibold text-base mb-1">
+                Work ready for your review
+              </h2>
+              <p className="text-[#8888AA] text-xs leading-relaxed">
+                The freelancer has marked the following milestones as complete. Review and approve to release payment, or raise a dispute.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {awaitingApprovalMilestones.map((milestone) => (
+                <div
+                  key={milestone.id}
+                  className="bg-[#0F0F13] border border-[#2A2A3A] rounded-xl px-4 py-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[#F0F0FF] text-sm font-medium truncate">
+                        {milestone.title}
+                      </p>
+                      {milestone.description && (
+                        <p className="text-[#8888AA] text-xs mt-0.5 truncate">
+                          {milestone.description}
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-[#F0F0FF] text-sm font-semibold tabular-nums flex-shrink-0">
+                      ₦{milestone.amount.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(milestone)}
+                      disabled={actingMilestoneId !== null}
+                      className="flex-1 bg-[#4FFFB0]/20 hover:bg-[#4FFFB0]/30 border border-[#4FFFB0]/30 disabled:opacity-50 disabled:cursor-not-allowed text-[#4FFFB0] text-xs font-semibold px-3 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      {actingMilestoneId === milestone.id ? (
+                        <div className="w-3 h-3 border border-[#4FFFB0]/30 border-t-[#4FFFB0] rounded-full animate-spin" />
+                      ) : (
+                        "✓ Approve & release payment"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDispute(milestone)}
+                      disabled={actingMilestoneId !== null}
+                      className="flex-1 bg-[#FF4D4D]/10 hover:bg-[#FF4D4D]/20 border border-[#FF4D4D]/20 disabled:opacity-50 disabled:cursor-not-allowed text-[#FF4D4D] text-xs font-semibold px-3 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      Raise a dispute
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {payableMilestones.length === 0 &&
+          awaitingApprovalMilestones.length === 0 &&
           contract.milestones.every(
-            (m) => m.status === "released" || m.status === "in_review"
+            (m) =>
+              ["released", "RELEASED", "disputed", "DISPUTED"].includes(m.status)
           ) && (
             <div className="bg-[#4FFFB0]/10 border border-[#4FFFB0]/20 rounded-2xl p-5 text-center shadow-xl">
               <p className="text-[#4FFFB0] font-semibold text-sm mb-1">
-                All milestones funded
+                All milestones settled
               </p>
               <p className="text-[#8888AA] text-xs">
-                All milestones have been paid or are currently in review.
+                All milestones have been released or resolved.
               </p>
             </div>
           )}

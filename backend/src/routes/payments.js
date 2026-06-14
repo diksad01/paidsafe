@@ -1,13 +1,22 @@
 import express from "express";
 import Flutterwave from "flutterwave-node-v3";
 import { db } from "../services/firebase.js";
+import { sendEmail } from "../services/resendService.js";
 
 const router = express.Router();
 
-const flw = new Flutterwave(
-  process.env.FLUTTERWAVE_PUBLIC_KEY,
-  process.env.FLUTTERWAVE_SECRET_KEY
-);
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://paidsafe.vercel.app";
+
+const getFlw = () => {
+  if (!process.env.FLUTTERWAVE_PUBLIC_KEY || !process.env.FLUTTERWAVE_SECRET_KEY) {
+    throw new Error("Flutterwave keys are not configured");
+  }
+  return new Flutterwave(
+    process.env.FLUTTERWAVE_PUBLIC_KEY,
+    process.env.FLUTTERWAVE_SECRET_KEY
+  );
+};
+
 
 router.post("/initiate", async (req, res) => {
   try {
@@ -32,7 +41,7 @@ router.post("/initiate", async (req, res) => {
       tx_ref: txRef,
       amount,
       currency,
-      redirect_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/callback`,
+      redirect_url: `${FRONTEND_URL}/payment/callback`,
       customer: {
         email,
         name: name || email
@@ -47,7 +56,7 @@ router.post("/initiate", async (req, res) => {
       }
     };
 
-    const response = await flw.Payment.initialize(payload);
+    const response = await getFlw().Payment.initialize(payload);
 
     if (response.status === "success") {
       return res.json({
@@ -71,9 +80,7 @@ router.post("/webhook", async (req, res) => {
     const hash = req.headers["verif-hash"];
 
     if (!hash || hash !== process.env.FLUTTERWAVE_WEBHOOK_SECRET) {
-      return res.status(401).json({
-        error: "Unauthorized"
-      });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const event = req.body;
@@ -97,19 +104,48 @@ router.post("/webhook", async (req, res) => {
         .doc(contractId)
         .collection("milestones")
         .doc(milestoneId)
-        .update({
-          status: "FUNDED"
-        });
+        .update({ status: "FUNDED" });
+
+      const contractDoc = await db.collection("contracts").doc(contractId).get();
+      if (contractDoc.exists) {
+        const contractData = contractDoc.data();
+        const contractTitle = contractData.title || "your contract";
+
+        if (contractData.status === "PENDING_CLIENT") {
+          await db.collection("contracts").doc(contractId).update({ status: "ACTIVE" });
+        }
+
+        let freelancerEmail = null;
+        if (contractData.freelancerId) {
+          try {
+            const userDoc = await db.collection("users").doc(contractData.freelancerId).get();
+            if (userDoc.exists) {
+              freelancerEmail = userDoc.data().email || null;
+            }
+          } catch {
+            console.warn("[payments] Could not fetch freelancer email");
+          }
+        }
+
+        if (freelancerEmail) {
+          await sendEmail(
+            freelancerEmail,
+            "Your client has funded a milestone",
+            `<p>Hi,</p>
+            <p>Great news! Your client has deposited funds into escrow for a milestone on <strong>${contractTitle}</strong>.</p>
+            <p>You can now begin work on this milestone. Once complete, mark it as done from your dashboard:</p>
+            <p><a href="${FRONTEND_URL}/dashboard" style="color:#6C63FF">${FRONTEND_URL}/dashboard</a></p>
+            <p>Funds will be released to you once your client approves your work.</p>
+            <p>— The PaidSafe Team</p>`
+          );
+        }
+      }
     }
 
-    return res.status(200).json({
-      received: true
-    });
+    return res.status(200).json({ received: true });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      error: "Webhook processing failed"
-    });
+    return res.status(500).json({ error: "Webhook processing failed" });
   }
 });
 

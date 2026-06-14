@@ -1,6 +1,22 @@
-export type ContractStatus = "draft" | "active" | "completed" | "disputed";
+export type ContractStatus =
+  | "draft"
+  | "active"
+  | "completed"
+  | "disputed"
+  | "PENDING_CLIENT"
+  | "ACTIVE"
+  | "COMPLETED"
+  | "DISPUTED";
 
-export type MilestoneStatus = "pending" | "in_review" | "released";
+export type MilestoneStatus =
+  | "pending"
+  | "PENDING"
+  | "in_review"
+  | "released"
+  | "FUNDED"
+  | "AWAITING_APPROVAL"
+  | "RELEASED"
+  | "DISPUTED";
 
 export interface Milestone {
   id: string;
