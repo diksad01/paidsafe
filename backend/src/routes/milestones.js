@@ -27,7 +27,11 @@ const getContractParties = async (contractId) => {
   return { clientEmail, freelancerEmail, contractTitle };
 };
 
-router.patch("/:id/complete", authMiddleware, async (req, res) => {
+
+/*PATCH /api/milestones/:id/complete
+  */
+  router.patch("/:id/complete", authMiddleware, async (req, res) => {
+
   try {
     const milestoneId = req.params.id;
     const { contractId, proofUrl } = req.body;
@@ -66,7 +70,10 @@ router.patch("/:id/complete", authMiddleware, async (req, res) => {
   }
 });
 
-router.patch("/:id/approve", async (req, res) => {
+
+/*PATCH /api/milestones/:id/approve
+  */
+  router.patch("/:id/approve", async (req, res) => {
   try {
     const milestoneId = req.params.id;
     const { contractId } = req.body;
@@ -104,7 +111,12 @@ router.patch("/:id/approve", async (req, res) => {
   }
 });
 
-router.patch("/:id/dispute", async (req, res) => {
+
+/*PATCH /api/milestones/:id/dispute
+  */
+ 
+  router.patch("/:id/dispute", async (req, res) => {
+
   try {
     const milestoneId = req.params.id;
     const { contractId } = req.body;
