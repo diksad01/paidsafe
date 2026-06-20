@@ -1,9 +1,11 @@
+import "../config/env.js";
 import express from "express";
 import Flutterwave from "flutterwave-node-v3";
 import { db } from "../services/firebase.js";
 import { sendEmail } from "../services/resendService.js";
 
 const router = express.Router();
+
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://paidsafe.vercel.app";
 
