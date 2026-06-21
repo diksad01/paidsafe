@@ -36,7 +36,18 @@ const getContractParties = async (contractId) => {
     const milestoneId = req.params.id;
     const { contractId, proofUrl } = req.body;
 
-    await db
+    if (!contractId) {
+  return res.status(400).json({
+    error: "contractId is required"
+  });
+}
+
+    if (!milestoneId) {
+      return res.status(400).json({
+        error: "milestoneId is required"
+      });
+    }
+        await db
       .collection("contracts")
       .doc(contractId)
       .collection("milestones")
@@ -78,6 +89,17 @@ const getContractParties = async (contractId) => {
     const milestoneId = req.params.id;
     const { contractId } = req.body;
 
+    if (!contractId) {
+  return res.status(400).json({
+    error: "contractId is required"
+  });
+}
+
+    if (!milestoneId) {
+      return res.status(400).json({
+        error: "milestoneId is required"
+      });
+    }
     await db
       .collection("contracts")
       .doc(contractId)
@@ -121,6 +143,17 @@ const getContractParties = async (contractId) => {
     const milestoneId = req.params.id;
     const { contractId } = req.body;
 
+    if (!contractId) {
+  return res.status(400).json({
+    error: "contractId is required"
+  });
+}
+
+    if (!milestoneId) {
+      return res.status(400).json({
+        error: "milestoneId is required"
+      });
+    }
     await db
       .collection("contracts")
       .doc(contractId)
