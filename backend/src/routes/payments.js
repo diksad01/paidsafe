@@ -31,11 +31,49 @@ router.post("/initiate", async (req, res) => {
       currency = "NGN"
     } = req.body;
 
-    if (!contractId || !milestoneId || !amount || !email) {
+    if (typeof amount !== "number" || Number.isNaN(amount)) {
+  return res.status(400).json({
+    error: "Valid amount is required"
+  });
+}
+
+    if (amount <= 0) {
       return res.status(400).json({
-        error: "contractId, milestoneId, amount, and email are required"
+        error: "Amount must be greater than 0"
       });
     }
+
+    if (amount > 10000000) {
+      return res.status(400).json({
+        error: "Amount exceeds maximum allowed value"
+      });
+    }
+    if (!email) {
+  return res.status(400).json({
+    error: "email is required"
+  });
+}
+
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      error: "Invalid email address"
+    });
+  }
+
+    if (!contractId) {
+  return res.status(400).json({
+    error: "contractId is required"
+  });
+}
+
+    if (!milestoneId) {
+      return res.status(400).json({
+        error: "milestoneId is required"
+      });
+    }
+
 
     const txRef = `PS-${contractId}-${milestoneId}-${Date.now()}`;
 
@@ -88,10 +126,51 @@ router.post("/webhook", async (req, res) => {
     const event = req.body;
 
     if (event.event === "charge.completed" && event.data?.status === "successful") {
+      if (!event.data?.meta) {
+  return res.status(400).json({
+    error: "Missing payment metadata"
+  });
+}
+
       const { contractId, milestoneId } = event.data.meta;
+
+      if (!contractId) {
+  return res.status(400).json({
+    error: "contractId is required"
+  });
+}
+
+      if (!milestoneId) {
+        return res.status(400).json({
+          error: "milestoneId is required"
+        });
+      }
+
+
       const flwReference = event.data.flw_ref;
       const amount = event.data.amount;
+      const contractDoc = await db
+        .collection("contracts")
+        .doc(contractId)
+        .get();
 
+      if (!contractDoc.exists) {
+        return res.status(404).json({
+          error: "Contract not found"
+        });
+      }
+      const milestoneDoc = await db
+        .collection("contracts")
+        .doc(contractId)
+        .collection("milestones")
+        .doc(milestoneId)
+        .get();
+
+      if (!milestoneDoc.exists) {
+        return res.status(404).json({
+          error: "Milestone not found"
+        });
+      }
       await db.collection("payments").add({
         contractId,
         milestoneId,
@@ -108,7 +187,7 @@ router.post("/webhook", async (req, res) => {
         .doc(milestoneId)
         .update({ status: "FUNDED" });
 
-      const contractDoc = await db.collection("contracts").doc(contractId).get();
+      
       if (contractDoc.exists) {
         const contractData = contractDoc.data();
         const contractTitle = contractData.title || "your contract";
