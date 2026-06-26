@@ -16,7 +16,12 @@ Sentry.init({
 
 const app = express();
 app.set("trust proxy", 1);
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.text());
 app.use(rateLimiter);
@@ -37,6 +42,6 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`);
-console.log("PROJECT ID:", process.env.FIREBASE_PROJECT_ID);
+//console.log("PROJECT ID:", process.env.FIREBASE_PROJECT_ID);
 
 });

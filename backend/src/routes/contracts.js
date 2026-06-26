@@ -39,6 +39,10 @@ router.post("/draft", async (req, res) => {
 
     const trimmedDescription = description.trim();
 
+    const sanitizedDescription = trimmedDescription
+  .replace(/<script.*?>.*?<\/script>/gis, "")
+  .replace(/[<>]/g, "");
+
     if (trimmedDescription.length < 10) {
       return res.status(400).json({
         error: "Please provide a more detailed job description"
@@ -61,9 +65,9 @@ router.post("/draft", async (req, res) => {
                   "You are a contract generator for freelancers. Always return ONLY valid JSON with this structure: { milestones: [{ title: string, amount: number }], totalAmount: number, currency: string }. Do not include any explanation text."
               },
               {
-                role: "user",
-                content: trimmedDescription
-              }
+                  role: "user",
+                  content: sanitizedDescription
+                }
             ],
             temperature: 0.7
           },
@@ -113,7 +117,7 @@ router.post("/draft", async (req, res) => {
       }
     ],
     totalAmount: 5000,
-    currency: "USD",
+    currency: "₦",
     generatedBy: "fallback"
   });
 }
@@ -135,12 +139,26 @@ router.post("/draft", async (req, res) => {
     } catch (err) {
       console.error("Invalid JSON from AI:", cleaned);
 
-      return res.status(500).json({
-        error: "AI returned invalid JSON",
-        raw: aiText
+      return res.json({
+        milestones: [
+          {
+            title: "Planning & Requirements",
+            amount: 1000
+          },
+          {
+            title: "Development",
+            amount: 3000
+          },
+          {
+            title: "Testing & Deployment",
+            amount: 1000
+          }
+        ],
+        totalAmount: 5000,
+        currency: "₦",
+        generatedBy: "fallback-invalid-json"
       });
     }
-
     return res.json(parsed);
   } catch (error) {
     console.error(
