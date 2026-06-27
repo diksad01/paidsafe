@@ -21,9 +21,11 @@ if (hasCredentials) {
       private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
     };
 
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+    }
 
 //console.log("Firebase initialized successfully");
     db = admin.firestore();
@@ -31,9 +33,18 @@ if (hasCredentials) {
   } catch (error) {
     console.error("Failed to initialize Firebase Admin SDK:", error.message);
   }
-} else {
-  console.warn("Firebase credentials are not configured in environment variables. Running in offline/mock mode.");
+}  else {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Firebase credentials are missing in production"
+    );
+  }
 
+  console.warn(
+    "Firebase credentials are not configured. Running in offline/mock mode."
+  );
+
+  // mock auth/db...
   // Expose mock auth/db interfaces so imports do not crash
   db = {
     collection: () => ({
@@ -48,7 +59,7 @@ if (hasCredentials) {
 
   auth = {
     verifyIdToken: async (token) => {
-      console.log("Mock verifying ID token:", token);
+      console.log("Mock verifying ID token:");
       return { uid: "mock-user-id", email: "mock@example.com" };
     }
   };
